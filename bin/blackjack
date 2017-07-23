@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/player'
+require_relative '../lib/cpu'
+require_relative '../lib/blackjack'
+
+$players = []
+
+#Default starting cash and minimum bet for all players
+$cash = 100
+$min_bet = 10
+
+def print_help
+    puts "A new blackjack game can be run using the following format and options:"
+    puts "blackjack [starting cash] [minimum bet] player1class player2class ..."
+    puts "where starting cash and minimum bet are plain integers."
+    puts "At least two player classes must be specified.\n"
+    puts "Alternatively, you can specify player class names separated by a space."
+    puts "eg. blackjack player1class player2class"
+    puts "This will default the starting cash to $100 and minimum bet to $10\n"
+end
+
+#Ensure there are more than 2 players and start the game
+def start_game
+    if $players.length >= 2
+        game = Blackjack.new($players)
+        game.run_game
+    else
+        puts "Either not enough players were specified or one of the class entries was not found."
+        puts "Please run the game using the instructions below:\n"
+        print_help
+    end
+end
+
+#Must have at least two arguments, if min bet and cash aren't specified. Print help text
+if ARGV.length < 2
+    puts "The arguments provided were not valid. Please run the game using the instructions below:\n"
+    print_help 
+elsif ARGV.length >= 2 
+
+    puts "##############################"
+    puts "# ------- BlackJack -------- #"
+    puts "# -- for the black screen -- #"
+    puts "# ----------------------- OP #"
+    puts "##############################"
+    puts
+
+    #Stores cash and min_bet
+    options = Hash.new()
+
+    #See if first two args are int, if not just load the players
+    ARGV.take(2).each_with_index do |arg, i|
+        argint = Integer(arg) rescue nil
+        options[:cash] = argint if i==0
+        options[:min_bet] = argint if i==1
+    end
+
+    #If both options are nil, start at argv[0]
+    if options[:cash].nil? && options[:min_bet].nil?
+        ARGV.each do |arg|
+            player_class = arg
+            if defined?(player_class)
+                $players.push(Module.const_get(player_class).new(player_class, $cash, $min_bet))
+            end
+        end
+
+        start_game
+
+    #If both options are ints, start at argv[2]
+    elsif (options[:cash].is_a? Integer) && (options[:min_bet].is_a? Integer)
+        ARGV.shift(2).each do |arg|
+            player_class = arg
+            if defined?(player_class)
+                $players.push(Module.const_get(player_class).new(player_class, options[:cash], options[:min_bet]))
+            end
+        end
+
+        start_game
+    
+    #If cash and min_bet are only partially fulfilled, notify improper arguments
+    else 
+        puts "The arguments provided were not valid.\n"
+        print_help 
+    end
+end
