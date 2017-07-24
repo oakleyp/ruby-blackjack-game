@@ -7,6 +7,7 @@ class Blackjack
         @players = players
         @deck = Deck.new()
         @game_over = false
+        @start_cash = players[0].cash
         @min_bet = players[0].min_bet
     end
 
@@ -29,12 +30,14 @@ class Blackjack
     #Start game loop
     def run_game
         @game_over = false
+        @deck = Deck.new()
         @deck.shuffle
         deal_hand
 
         #Print players in game
-        puts "---- Welcome to BlackJack. ----"
-        puts "Starting Cash: $#{@players[0].cash} | Table Minimum: $#{@min_bet}"
+        puts "------------ Welcome to BlackJack. ------------"
+        puts " - Starting Cash: $#{@start_cash} | Table Minimum: $#{@min_bet} -"
+        puts "-----------------------------------------------"
         puts
         @players.each do |player|
             puts "#{player.name} has joined the game."
@@ -70,7 +73,8 @@ class Blackjack
         end
 
         #Sort players by score
-        player_ranks.sort_by{|k, player| player.count_hand} .reverse
+        player_ranks = player_ranks.sort_by{|k, player| player.count_hand} .reverse
+
 
         #Print wins, ties, losses
         winners = []

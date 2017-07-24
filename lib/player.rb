@@ -42,6 +42,7 @@ class Player
 
     #Sets player bet value based on input
     def make_bet
+        #TODO: Only print top card
         print_hand
 
         puts "Enter an amount to bet above $#{@min_bet}:"
@@ -58,6 +59,9 @@ class Player
                 puts "You don't have enough cash to make that bet."
                 puts "Enter a number below #{@cash} and at least #{@min_bet}"
                 next
+            elsif uinput < @min_bet
+                puts "The minimum bet is $#{@min_bet}."
+                puts "Enter a number below #{@cash} and at least #{@min_bet}"
             else 
                 ubet = uinput
                 break

@@ -38,11 +38,16 @@ if ARGV.length < 2
     print_help 
 elsif ARGV.length >= 2 
 
-    puts "##############################"
-    puts "# ------- BlackJack -------- #"
-    puts "# -- for the black screen -- #"
-    puts "# ----------------------- OP #"
-    puts "##############################"
+    puts
+    puts "############################################################"
+    puts "########################## ---- ############################"
+    puts "################## ---------------- ########################"
+    puts "############## ------- BlackJack -------- ##################"
+    puts "############ ---- for the black screen ---- ################"
+    puts "############## ----------------------- OP ##################"
+    puts "################## ------------------- #####################"
+    puts "####################### ------- ############################"
+    puts "############################################################"
     puts
 
     #Stores cash and min_bet
@@ -68,10 +73,13 @@ elsif ARGV.length >= 2
 
     #If both options are ints, start at argv[2]
     elsif (options[:cash].is_a? Integer) && (options[:min_bet].is_a? Integer)
-        ARGV.shift(2).each do |arg|
-            player_class = arg
-            if defined?(player_class)
-                $players.push(Module.const_get(player_class).new(player_class, options[:cash], options[:min_bet]))
+        ARGV.each_with_index do |arg, i|
+            if (i >= 2)
+                puts arg
+                player_class = arg
+                if defined?(player_class)
+                    $players.push(Module.const_get(player_class).new(player_class, options[:cash], options[:min_bet]))
+                end
             end
         end
 
