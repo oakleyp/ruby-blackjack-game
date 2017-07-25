@@ -22,7 +22,7 @@ end
 
 #Ensure there are more than 2 players and start the game
 def start_game
-    if $players.length >= 2
+    if $players.length >= 1
         game = Blackjack.new($players)
         game.run_game
     else
@@ -33,10 +33,10 @@ def start_game
 end
 
 #Must have at least two arguments, if min bet and cash aren't specified. Print help text
-if ARGV.length < 2
+if ARGV.length < 1
     puts "The arguments provided were not valid. Please run the game using the instructions below:\n"
     print_help 
-elsif ARGV.length >= 2 
+elsif ARGV.length >= 1
 
     puts
     puts "############################################################"

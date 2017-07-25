@@ -40,11 +40,27 @@ class Player
         puts
     end
 
+    #Prints first card in a player's hand
+    def print_top
+        card = @hand[0]
+        puts
+        puts "Top card in hand:"
+        printf("       %8s",  "-----------")
+        puts
+        printf("   + | %8s  |", card.rank.to_s)
+        puts
+        printf("     | %8s  |", 'of')
+        puts
+        printf("     | %8s  |", card.suit.to_s)
+        puts
+        printf("       %8s",  "-----------")
+        puts
+        puts "Current Bet: $#{bet} | Cash: $#{@cash}\n"
+        puts
+    end
+
     #Sets player bet value based on input
     def make_bet
-        #TODO: Only print top card
-        print_hand
-
         puts "Enter an amount to bet above $#{@min_bet}:"
 
         ubet = 0

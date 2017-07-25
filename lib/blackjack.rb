@@ -1,5 +1,6 @@
 require_relative 'deck'
 require_relative 'player'
+require_relative 'dealer'
 require_relative 'cpu'
 
 class Blackjack
@@ -9,6 +10,7 @@ class Blackjack
         @game_over = false
         @start_cash = players[0].cash
         @min_bet = players[0].min_bet
+        @dealer = Dealer.new("Dealer")
     end
 
     #Deal a new hand of 2 cards to all players
@@ -20,6 +22,12 @@ class Blackjack
                 player.give_card(card)
             end
         end
+
+        @dealer.burn_hand
+        2.times do 
+            card = @deck.draw
+            @dealer.give_card(card)
+        end
     end
 
     #Deal one card to specified player
@@ -30,68 +38,69 @@ class Blackjack
     #Start game loop
     def run_game
         @game_over = false
-        @deck = Deck.new()
-        @deck.shuffle
-        deal_hand
 
         #Print players in game
         puts "------------ Welcome to BlackJack. ------------"
         puts " - Starting Cash: $#{@start_cash} | Table Minimum: $#{@min_bet} -"
         puts "-----------------------------------------------"
         puts
+
         @players.each do |player|
             puts "#{player.name} has joined the game."
         end
-        puts "\n"
+        puts 
 
-        #Get player bets after dealing
+        #Get player bets before dealing
         @players.each {|player| player.make_bet}
 
         #Bets are made, take players' money
         @players.each {|player| player.cash -= player.bet} 
 
-        player_ranks = Hash.new()
-        players_in = @players.collect{|player| player.name}
+        #Shuffle the deck and deal the hand
+        @deck = Deck.new()
+        @deck.shuffle
+        deal_hand
 
-        #Take each player's hit or pass
-        while !@game_over
-            @players.each do |player|
-                if player.count_hand <=21 && player.take_a_hit?
-                    deal_card(player)
-                elsif players_in.include? player.name
-                        #Players is out, only display this round 
-                        players_in -= [player.name]
-                        player.display_out if player.count_hand > 21
-                        player_ranks[player.name] = player
-                end
-            end
+        #Show dealer top card
+        @dealer.print_top
+        puts "     -----------------------------"
+        puts
 
-            if players_in.length == 0
-                @game_over = true
-                break
+        #For each player, offer hit or stay until break or stay
+        @players.each do |player|
+            while player.count_hand <= 21 && player.take_a_hit?
+                deal_card(player)
             end
+            player.display_out if player.count_hand > 21
         end
 
-        #Sort players by score
-        player_ranks = player_ranks.sort_by{|k, player| player.count_hand} .reverse
+        #End of round, show dealer hand and take cards while his hand < 17
+        @dealer.print_hand
 
-
-        #Print wins, ties, losses
+        while @dealer.take_a_hit? && @dealer.count_hand <= 21
+            puts "Dealer draws."
+            puts
+            deal_card(@dealer)
+            @dealer.print_hand
+        end
+        
         winners = []
         losers = []
-        max_score = 0
-        player_ranks.each do |key, player|
-            if player.count_hand <= 21 && player.count_hand >= max_score
-                max_score = player.count_hand
+
+        @players.each do |player|
+            if player.count_hand <= 21 && player.count_hand > @dealer.count_hand 
                 winners.push(player)
-            else losers.push(player)
+            elsif @dealer.count_hand > 21 && player.count_hand <= 21
+                winners.push(player)
+            else
+                losers.push(player)
             end
         end
 
         puts
-        puts "###########################"
-        puts "# ------ GAME OVER ------ #"
-        puts "###########################"
+        puts "###################################"
+        puts "# ---------- GAME OVER ---------- #"
+        puts "###################################"
         puts
         puts "---- Winners: ----"
         winners.each do |winner|
@@ -129,5 +138,3 @@ class Blackjack
 
 
 end
-
-#Debug
